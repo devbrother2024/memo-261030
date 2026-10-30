@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumo</title>
+<style>
+  :root {
+    --accent: #6c5ce7;
+    --accent-dark: #5546d4;
+    --accent-soft: #f1efff;
+    --ink: #1c1b29;
+    --muted: #6b6a7c;
+    --line: #e9e8f2;
+    --bg: #fbfbfe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    word-break: keep-all;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+
+  .btn {
+    display: inline-block;
+    padding: 16px 32px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(108, 92, 231, 0.28);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  .hero {
+    text-align: center;
+    padding: 160px 0 140px;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, var(--accent-soft) 0%, transparent 70%);
+  }
+  .brand {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-size: 72px;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    margin-bottom: 28px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto 48px;
+  }
+
+  .features { padding: 120px 0; }
+  .features h2, .cta h2 {
+    text-align: center;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+    margin-bottom: 64px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 40px 32px;
+  }
+  .icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+  .card h3 { font-size: 21px; margin-bottom: 10px; letter-spacing: -0.01em; }
+  .card p { color: var(--muted); font-size: 16px; }
+
+  .cta {
+    text-align: center;
+    padding: 120px 0;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--accent-soft) 100%);
+  }
+  .cta h2 { margin-bottom: 40px; }
+
+  footer {
+    text-align: center;
+    padding: 36px 0;
+    font-size: 14px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    background: #fff;
+  }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 24px; }
+    .hero { padding: 96px 0 88px; }
+    .hero h1 { font-size: 44px; }
+    .hero p { font-size: 17px; }
+    .features, .cta { padding: 80px 0; }
+    .features h2, .cta h2 { font-size: 28px; margin-bottom: 40px; }
+    .grid { grid-template-columns: 1fr; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="brand">Lumo</span>
+    <h1>생각보다 빠른<br><span>AI 메모 앱</span></h1>
+    <p>떠오른 생각을 적기만 하세요. 정리와 요약, 검색은 Lumo가 알아서 해드립니다.</p>
+    <a class="btn" href="#start">무료로 시작하기</a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <h2>메모가 달라지는 세 가지</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>즉시 기록</h3>
+        <p>열면 바로 입력할 수 있어요.<br>저장 없이 자동으로 기록돼요.</p>
+      </div>
+      <div class="card">
+        <div class="icon">✨</div>
+        <h3>AI 자동 정리</h3>
+        <p>주제별로 묶고 요약해요.<br>긴 글도 핵심만 보여줘요.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔎</div>
+        <h3>똑똑한 검색</h3>
+        <p>단어 하나만 입력해 보세요.<br>비슷한 뜻까지 찾아드려요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="start">
+  <div class="wrap">
+    <h2>지금 Lumo로 첫 메모를 남겨보세요</h2>
+    <a class="btn" href="#start">무료로 시작하기</a>
+  </div>
+</section>
+
+<footer>© 2026 Lumo. All rights reserved.</footer>
+
+</body>
+</html>

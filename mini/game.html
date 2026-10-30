@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이모지 메모리 게임</title>
+<style>
+  :root {
+    --bg1: #fdeef6;
+    --bg2: #e9f0ff;
+    --ink: #3b3553;
+    --muted: #8a84a3;
+    --accent: #8f7cf0;
+    --card: min(21vw, 110px);
+    --gap: min(2.6vw, 14px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 24px 12px;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .stat {
+    background: rgba(255,255,255,.75);
+    border-radius: 16px;
+    padding: 10px 18px;
+    box-shadow: 0 4px 14px rgba(120, 100, 180, .12);
+    text-align: center;
+    min-width: 88px;
+  }
+  .stat small { display: block; font-size: 12px; color: var(--muted); }
+  .stat b { font-size: 22px; font-variant-numeric: tabular-nums; }
+  button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 14px 22px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 6px 16px rgba(143, 124, 240, .35);
+    transition: transform .12s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, var(--card));
+    grid-auto-rows: var(--card);
+    gap: var(--gap);
+  }
+  .card {
+    position: relative;
+    perspective: 600px;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    padding: 0;
+  }
+  .inner {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    transition: transform .35s ease;
+  }
+  .card.open .inner, .card.matched .inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0;
+    border-radius: 22%;
+    display: flex; align-items: center; justify-content: center;
+    backface-visibility: hidden;
+    box-shadow: 0 8px 20px rgba(120, 100, 180, .18);
+  }
+  .back {
+    background: linear-gradient(145deg, #e6defc, #cfe3fb);
+  }
+  .front {
+    background: #fff;
+    transform: rotateY(180deg);
+    font-size: calc(var(--card) * 0.5);
+  }
+  .card { transition: opacity .3s ease; }
+  .card.matched { cursor: default; pointer-events: none; opacity: .5; }
+
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(60, 50, 90, .35);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 28px;
+    padding: 36px 40px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(60, 50, 90, .3);
+    max-width: 340px; width: 100%;
+  }
+  .modal .big { font-size: 52px; margin-bottom: 8px; }
+  .modal h2 { margin-bottom: 14px; }
+  .modal p { color: var(--muted); margin-bottom: 6px; }
+  .modal p b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .modal button { margin-top: 22px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="stat"><small>시간</small><b id="time">00:00</b></div>
+  <div class="stat"><small>시도</small><b id="tries">0</b></div>
+  <button id="restart">다시 시작</button>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="big">🎉</div>
+    <h2>모두 맞췄어요!</h2>
+    <p>걸린 시간 <b id="rTime"></b></p>
+    <p>시도 횟수 <b id="rTries"></b></p>
+    <button id="again">다시 하기</button>
+  </div>
+</div>
+
+<script>
+  const EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🐵','🐯','🦁'];
+  const board = document.getElementById('board');
+  const timeEl = document.getElementById('time');
+  const triesEl = document.getElementById('tries');
+  const overlay = document.getElementById('overlay');
+
+  let first = null;
+  let locked = false;
+  let tries = 0;
+  let matched = 0;
+  let startedAt = null;
+  let timer = null;
+
+  function fmt(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    return m + ':' + s;
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function startTimer() {
+    startedAt = Date.now();
+    timer = setInterval(() => {
+      timeEl.textContent = fmt(Math.floor((Date.now() - startedAt) / 1000));
+    }, 250);
+  }
+
+  function stopTimer() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function reset() {
+    stopTimer();
+    first = null; locked = false; tries = 0; matched = 0; startedAt = null;
+    timeEl.textContent = '00:00';
+    triesEl.textContent = '0';
+    overlay.classList.remove('show');
+    board.innerHTML = '';
+
+    shuffle([...EMOJIS, ...EMOJIS]).forEach(emoji => {
+      const card = document.createElement('button');
+      card.className = 'card';
+      card.type = 'button';
+      card.dataset.emoji = emoji;
+      card.setAttribute('aria-label', '카드');
+      card.innerHTML =
+        '<div class="inner"><div class="face back"></div><div class="face front">' + emoji + '</div></div>';
+      card.addEventListener('click', () => flip(card));
+      board.appendChild(card);
+    });
+  }
+
+  function flip(card) {
+    if (locked || card.classList.contains('open') || card.classList.contains('matched')) return;
+    if (!startedAt) startTimer();
+
+    card.classList.add('open');
+    if (!first) { first = card; return; }
+
+    tries++;
+    triesEl.textContent = tries;
+    const second = card;
+
+    if (first.dataset.emoji === second.dataset.emoji) {
+      first.classList.replace('open', 'matched');
+      second.classList.replace('open', 'matched');
+      first = null;
+      matched++;
+      if (matched === EMOJIS.length) finish();
+    } else {
+      locked = true;
+      const a = first;
+      first = null;
+      setTimeout(() => {
+        a.classList.remove('open');
+        second.classList.remove('open');
+        locked = false;
+      }, 800);
+    }
+  }
+
+  function finish() {
+    stopTimer();
+    const sec = Math.floor((Date.now() - startedAt) / 1000);
+    timeEl.textContent = fmt(sec);
+    document.getElementById('rTime').textContent = fmt(sec);
+    document.getElementById('rTries').textContent = tries + '회';
+    setTimeout(() => overlay.classList.add('show'), 500);
+  }
+
+  document.getElementById('restart').addEventListener('click', reset);
+  document.getElementById('again').addEventListener('click', reset);
+  reset();
+</script>
+</body>
+</html>

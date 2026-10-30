@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/*
+ * 디자인 토큰. CLAUDE.md의 표와 Figma 변수 이름을 그대로 쓴다.
+ * 이름 규칙: 슬래시(/)는 하이픈(-)으로 바꾸고 앞에 --를 붙인다. 예) surface/card -> --surface-card
+ * 코드에서는 이 이름만 쓴다. 새 값이 필요하면 CLAUDE.md 표부터 고친다.
+ * static: 쓰이지 않는 토큰도 CSS 변수로 항상 내보낸다.
+ * 값(light)은 여기, dark 값은 아래 prefers-color-scheme 블록에 둔다.
+ */
+@theme static {
+  /* 색 */
+  --color-primary: #3182f6;
+  --surface-page: #f2f4f6;
+  --surface-card: #ffffff;
+  --text-primary: #191f28;
+  --text-secondary: #4e5968;
+  --text-muted: #8b95a1;
+  --text-on-primary: #ffffff;
+  --border-default: #e5e8eb;
+  --label-blue: #3182f6;
+  --label-blue-soft: #e8f3ff;
+  --label-green: #12a150;
+  --label-green-soft: #e3f8ec;
+  --label-orange: #f76808;
+  --label-orange-soft: #fff1e5;
+  --label-pink: #e5397a;
+  --label-pink-soft: #ffeaf1;
+
+  /* 간격 */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-34: 34px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* 모서리. Tailwind의 rounded-sm, rounded-md, rounded-lg, rounded-xl, rounded-full이 이 값을 쓴다 */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #4d94ff;
+    --surface-page: #101014;
+    --surface-card: #1c1c22;
+    --text-primary: #f1f3f5;
+    --text-secondary: #b3bac2;
+    --text-muted: #6e7783;
+    --text-on-primary: #ffffff;
+    --border-default: #2a2a33;
+    --label-blue: #6aa6ff;
+    --label-blue-soft: #1d2a40;
+    --label-green: #3ccb7f;
+    --label-green-soft: #17302a;
+    --label-orange: #ff9446;
+    --label-orange-soft: #3a2817;
+    --label-pink: #ff6fa2;
+    --label-pink-soft: #3b1d2a;
+  }
+}
+
+/* 글꼴. layout.tsx의 next/font가 --font-noto-sans-kr를 만든다 */
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif;
+}
+
+/*
+ * 텍스트 스타일. 클래스 이름이 스타일 이름이다. 예) heading/xl -> class="heading-xl"
+ * 크기, 굵기, 줄 높이, 자간이 한 번에 들어온다. 색은 따로 준다.
+ */
+@utility heading-xl {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 38px;
+  letter-spacing: -0.8px;
+}
+@utility heading-lg {
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 36px;
+  letter-spacing: -0.8px;
+}
+@utility title-lg {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+}
+@utility title-md {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+}
+@utility label-md {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.2px;
+}
+@utility body-md {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+@utility body-sm {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.1px;
+}
+@utility caption-md {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.2px;
+}
+@utility caption-sm {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0;
+}
+@utility button-md {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+/*
+ * 메모 작성 화면의 본문 편집 영역. 상세 화면(MemoBody)과 같은 텍스트 스타일을 쓴다.
+ * 제목은 h2(title-lg), 소제목은 h3(title-md), 굵게는 b, 목록은 ul이다.
+ */
+.memo-editor {
+  @apply body-md;
+  color: var(--text-secondary);
+  outline: none;
+}
+.memo-editor p,
+.memo-editor div,
+.memo-editor h2,
+.memo-editor h3,
+.memo-editor ul {
+  margin: 0;
+}
+/*
+ * 블록 사이는 space-8이다. 브라우저에 따라 편집 중에 블록이 <p> 안에 중첩되기도 해서
+ * flex의 gap 대신 "첫째가 아닌 블록의 위쪽 간격"으로 둔다. 중첩돼도 같은 간격이 나온다.
+ */
+.memo-editor :is(p, div, h2, h3, ul):not(:first-child) {
+  margin-top: var(--space-8);
+}
+.memo-editor h2 {
+  @apply title-lg;
+  color: var(--text-primary);
+}
+.memo-editor h3 {
+  @apply title-md;
+  color: var(--text-primary);
+}
+.memo-editor b,
+.memo-editor strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.memo-editor ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+/* 점과 글자 사이를 space-8로 두고, 글이 길어 줄이 바뀌면 점 뒤에 맞춰 이어진다. */
+.memo-editor li {
+  position: relative;
+  padding-left: calc(0.325em + var(--space-8));
+}
+.memo-editor li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  /* 한글은 단어 중간에서 줄을 바꾸지 않는다 */
+  word-break: keep-all;
+}
+
